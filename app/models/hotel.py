@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, ForeignKey, func, Text, DateTime
+from sqlalchemy import String, ForeignKey, func, Text, DateTime, true
 from ..db import Base
 from datetime import datetime
 from ..constants.status import FAQStatus
@@ -46,7 +46,7 @@ class Conversations(Base):
     hotel_id : Mapped[int] = mapped_column(ForeignKey("hotel.id", ondelete="CASCADE"), nullable=False)
     guest_question : Mapped[str] = mapped_column(Text, nullable=False)
     ai_response : Mapped[str] = mapped_column(Text, nullable=False)
-    was_answerable : Mapped[bool] = mapped_column(nullable=False, server_default="true")
+    was_answerable : Mapped[bool] = mapped_column(nullable=False, server_default=true())
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # relationship
@@ -59,7 +59,7 @@ class UnansweredQuestions(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     conversation_id : Mapped[int] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
-    status : Mapped[FAQStatus] = mapped_column(SQLEnum(FAQStatus, name = "faq_status"), nullable=False, server_default="pending")
+    status : Mapped[FAQStatus] = mapped_column(SQLEnum(FAQStatus, name = "faq_status"), nullable=False, default=FAQStatus.PENDING)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # realtionship

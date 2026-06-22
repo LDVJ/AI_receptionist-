@@ -15,8 +15,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-# print(settings.DB_HOST)
-# print(settings.DB_PASSWORD)
-# print(settings.DB_PORT)
-# print(settings.DB_NAME)
