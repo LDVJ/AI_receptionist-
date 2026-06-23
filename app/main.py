@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from .routes import signup
 
 app =  FastAPI()
 
@@ -10,4 +11,4 @@ def root():
     }
 
 
-# app.include_router()
+app.include_router(signup.router)
