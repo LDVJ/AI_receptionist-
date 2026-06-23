@@ -51,7 +51,7 @@ class Conversations(Base):
 
     # relationship
     hotel : Mapped["Hotel"] = relationship(back_populates="conversation")
-    unanswered_entry : Mapped["UnansweredQuestions"] = relationship(back_populates="conversation", cascade="all, delete-orphan")
+    unanswered_entry : Mapped["UnansweredQuestions | None"] = relationship(back_populates="conversation", cascade="all, delete-orphan")
 
 
 class UnansweredQuestions(Base):

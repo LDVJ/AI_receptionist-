@@ -6,6 +6,9 @@ class Settings(BaseSettings):
     DB_HOST : str
     DB_PORT : int
     DB_NAME : str
+    SECRET_KEY : str
+    ALGORITHM : str
+    ACCESS_TOKEN_EXP_TIME_HOURS : int
 
     model_config = SettingsConfigDict(
         env_file=".env",
