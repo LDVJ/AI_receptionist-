@@ -11,13 +11,13 @@ class UserSignUp(BaseModel):
     name  : str
 
 class HotelFAQCreate(BaseModel):
-    hotel_id : str
     question : str
     answer : str
     category : str
 
 class HotelFAQResponse(HotelFAQCreate):
     id: str
+    hotel_id : str
     created_at : datetime
 
     model_config = {
