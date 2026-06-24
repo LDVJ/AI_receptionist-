@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 class Hotel(Base):
     __tablename__ = "hotel"
 
-    id : Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    id : Mapped[str] = mapped_column(primary_key=True, nullable=False)
     hotel_name : Mapped[str] = mapped_column(String(255) , nullable=False)
-    admin_id : Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    admin_id : Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
     welcome_msg : Mapped[str] = mapped_column(Text, nullable=True)
     slug : Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -29,8 +29,8 @@ class Hotel(Base):
 class HotelFAQ(Base):
     __tablename__  = "hotel_faq"
 
-    id : Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    hotel_id : Mapped[int] = mapped_column(ForeignKey("hotel.id", ondelete="CASCADE"), nullable=False)
+    id : Mapped[str] = mapped_column(primary_key=True, nullable=False)
+    hotel_id : Mapped[str] = mapped_column(ForeignKey("hotel.id", ondelete="CASCADE"), nullable=False)
     question : Mapped[str] = mapped_column(String(500), nullable=False)
     answer : Mapped[str] = mapped_column(Text, nullable=False)
     category : Mapped[str] = mapped_column(String(100), nullable=True)
@@ -42,8 +42,8 @@ class HotelFAQ(Base):
 class Conversations(Base):
     __tablename__ = "conversations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    hotel_id : Mapped[int] = mapped_column(ForeignKey("hotel.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[str] = mapped_column(primary_key=True, nullable=False)
+    hotel_id : Mapped[str] = mapped_column(ForeignKey("hotel.id", ondelete="CASCADE"), nullable=False)
     guest_question : Mapped[str] = mapped_column(Text, nullable=False)
     ai_response : Mapped[str] = mapped_column(Text, nullable=False)
     was_answerable : Mapped[bool] = mapped_column(nullable=False, server_default=true())
@@ -57,8 +57,8 @@ class Conversations(Base):
 class UnansweredQuestions(Base):
     __tablename__ = "unanswered_questions"
 
-    id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    conversation_id : Mapped[int] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[str] = mapped_column(primary_key=True, nullable=False)
+    conversation_id : Mapped[str] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
     status : Mapped[FAQStatus] = mapped_column(SQLEnum(FAQStatus, name = "faq_status"), nullable=False, default=FAQStatus.PENDING)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

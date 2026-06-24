@@ -3,7 +3,7 @@ from datetime import datetime
 from .constants.status import FAQStatus
 
 class TokenData(BaseModel):
-    id : int
+    id : str
 
 class UserSignUp(BaseModel):
     email : EmailStr
@@ -11,13 +11,13 @@ class UserSignUp(BaseModel):
     name  : str
 
 class HotelFAQCreate(BaseModel):
-    hotel_id : int
+    hotel_id : str
     question : str
     answer : str
     category : str
 
 class HotelFAQResponse(HotelFAQCreate):
-    id: int
+    id: str
     created_at : datetime
 
     model_config = {
@@ -31,7 +31,7 @@ class HotelCreate(BaseModel):
 
     
 class HotelResponse(HotelCreate):
-    id: int
+    id: str
     slug : str
     created_at : datetime
 
@@ -42,7 +42,7 @@ class HotelResponse(HotelCreate):
 
 
 class UserResponse(BaseModel):
-    id : int
+    id : str
     email : EmailStr
     name : str
     created_at: datetime
@@ -53,7 +53,7 @@ class UserResponse(BaseModel):
     }
 
 class ConversationCreate(BaseModel):
-    hotel_id : int
+    hotel_id : str
     guest_question : str
     ai_response : str
     was_answerable : bool | None = True
@@ -68,11 +68,11 @@ class ConversationResponse(ConversationCreate):
     }
 
 class UnansweredQuestCreate(BaseModel):
-    conversation_id : int
+    conversation_id : str
     status : FAQStatus | None = FAQStatus.PENDING
 
 class UnansweredQuestResponse(UnansweredQuestCreate):
-    id : int
+    id : str
     created_at : datetime
 
     

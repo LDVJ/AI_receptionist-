@@ -49,7 +49,7 @@ async def get_user_with_token(bearer_token : str = Depends(oauth2_schema), db : 
 
     token = verify_jwt_token(token=bearer_token, credentials_exception=credentials_exception)
 
-    result = db.execute(select(models.Users).where(models.Users.id == token.id))
+    result = await db.execute(select(models.Users).where(models.Users.id == token.id))
 
     user_data = result.scalar_one_or_none()
 
