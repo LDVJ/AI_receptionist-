@@ -13,7 +13,7 @@ router = APIRouter(
     tags=["signup"],
 )
 
-@router.post("/signup", response_model=schemas.UserResponse)
+@router.post("/admin/signup", response_model=schemas.UserResponse)
 async def signup(payload : schemas.UserSignUp, db : AsyncSession = Depends(get_db)):
     check_user = await db.execute(select(models.Users).where(models.Users.email == payload.email))
     result : Result = check_user.scalar_one_or_none()
@@ -35,4 +35,3 @@ async def signup(payload : schemas.UserSignUp, db : AsyncSession = Depends(get_d
     await db.refresh(new_user)
 
     return new_user
-    

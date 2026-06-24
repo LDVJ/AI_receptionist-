@@ -1,5 +1,5 @@
 # generate token
-from config import settings
+from .config import settings
 from fastapi.security import oauth2
 from fastapi import Depends, HTTPException, status
 from copy import deepcopy
@@ -7,15 +7,16 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from .schemas import TokenData
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from .db import get_db
-import models
+from . import models
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXP_TIME_HOURS = settings.ACCESS_TOKEN_EXP_TIME_HOURS
 
-oauth2_schema = oauth2.OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_schema = oauth2.OAuth2PasswordBearer(tokenUrl="/admin/login")
 
 def create_jwt_token(data : dict) -> str:
     copy_data = deepcopy(data)
@@ -49,7 +50,7 @@ async def get_user_with_token(bearer_token : str = Depends(oauth2_schema), db : 
 
     token = verify_jwt_token(token=bearer_token, credentials_exception=credentials_exception)
 
-    result = await db.execute(select(models.Users).where(models.Users.id == token.id))
+    result = await db.execute(select(models.Users).options(selectinload(models.Users.hotel)).where(models.Users.id == token.id))
 
     user_data = result.scalar_one_or_none()
 

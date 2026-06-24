@@ -29,6 +29,10 @@ class HotelCreate(BaseModel):
     hotel_name : str
     welcome_msg : str | None = None
 
+class HotelUpdate(BaseModel):
+    hotel_name : str | None = None
+    welcome_msg : str | None = None
+
     
 class HotelResponse(HotelCreate):
     id: str
