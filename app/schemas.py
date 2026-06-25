@@ -15,6 +15,11 @@ class HotelFAQCreate(BaseModel):
     answer : str
     category : str
 
+class HotelFAQUpdate(BaseModel):
+    question : str | None = None
+    answer : str | None = None
+    category : str | None = None
+
 class HotelFAQResponse(HotelFAQCreate):
     id: str
     hotel_id : str

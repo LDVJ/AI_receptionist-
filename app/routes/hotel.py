@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from ..db import get_db
-from .. import oauth2
-from .. import schemas
-from .. import models
-from .. import utilities
+from .. import oauth2, schemas, models, utilities
 
 router =  APIRouter(
     tags=["Hotel"],
@@ -41,7 +38,7 @@ async def create_hotel(payload : schemas.HotelCreate, user_info : models.Users =
     return newHotel
     
 
-@router.patch("/update", response_model=schemas.HotelResponse, status_code=status.HTTP_201_CREATED)
+@router.patch("/update", response_model=schemas.HotelResponse, status_code=status.HTTP_200_OK)
 async def update_hotel(payload : schemas.HotelUpdate, user_info : models.Users = Depends(oauth2.get_user_with_token), db : AsyncSession = Depends(get_db)):
     updated_info = payload.model_dump(exclude_unset=True)
 
@@ -63,15 +60,11 @@ async def update_hotel(payload : schemas.HotelUpdate, user_info : models.Users =
 async def get_hotel_info(user_info : models.Users = Depends(oauth2.get_user_with_token), db : AsyncSession = Depends(get_db)):
     hotel_id = user_info.hotel.id
 
-    print("====",hotel_id)
-
     if hotel_id is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Hotel Found for this user")
 
     hotel = await db.execute(select(models.Hotel).where(models.Hotel.id == hotel_id))
     hotel_info = hotel.scalar_one_or_none()
-
-    print("====",hotel_info)
 
     if hotel_info is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Hotel Found for this user")
