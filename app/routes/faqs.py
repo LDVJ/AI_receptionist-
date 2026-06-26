@@ -63,6 +63,8 @@ async def delete_faq(faq_id : str, user_info : models.Users = Depends(oauth2.get
 
 @router.get("/", response_model=list[schemas.HotelFAQResponse], status_code= status.HTTP_200_OK)
 async def get_all_faqs(user_info : models.Users = Depends(oauth2.get_user_with_token), db : AsyncSession = Depends(get_db)):
+
+
     all_Faqs = await db.execute(select(models.HotelFAQ).where(models.HotelFAQ.hotel_id == user_info.hotel.id))
     all_Faqs_data = all_Faqs.scalars().all()
 

@@ -10,6 +10,7 @@ class UserSignUp(BaseModel):
     password : str
     name  : str
 
+
 class HotelFAQCreate(BaseModel):
     question : str
     answer : str
@@ -87,6 +88,17 @@ class UnansweredQuestResponse(UnansweredQuestCreate):
     
     model_config = {
         "from_attributes":True
+    }
+
+# chat responses
+
+class WelcomeResponse(BaseModel):
+    slug : str
+    welcome_msg : str
+    faqs : list[HotelFAQResponse]
+
+    model_config = {
+        "from_attributes": True
     }
 
 # Relationship Schemas

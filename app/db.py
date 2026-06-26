@@ -22,5 +22,4 @@ class Base(DeclarativeBase):
 
 async def get_db():
     async with sessionLocal() as db:
-        print("=====db Connected")
         yield db
