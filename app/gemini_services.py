@@ -1,0 +1,75 @@
+from google  import genai
+from .config import settings
+from . import schemas, models
+import json
+
+
+client = genai.Client(
+    api_key=settings.GEMINI_API_KEY
+)
+
+async def get_gemini_response(hotel_name: str, faq_data : list[models.HotelFAQ], user_question : schemas.QuestionPayload):
+
+    faq_list = [
+    {
+        "question": faq.question,
+        "answer": faq.answer,
+        "category": faq.category,
+    }
+    for faq in faq_data
+]
+
+    prompt = f"""
+    You are an AI receptionist for "{hotel_name}".
+
+    Your job is to answer customer questions ONLY using the hotel FAQ information provided below.
+
+    Rules:
+    1. Never make up hotel information.
+    2. If the answer exists in the FAQs, answer naturally and politely.
+    3. If the answer is NOT available in the FAQs, politely reply:
+    "I'm sorry, I couldn't find that information. Please contact the hotel reception for further assistance."
+    4. Do not mention that you are reading FAQs.
+    5. Keep answers concise and professional.
+    6. If multiple FAQs are relevant, combine their information into one response.
+    7. if the question is just generic which don't require hotel Faq data you respond it cleanly(ex - for "hello" -> you can say "how can i help you")
+    8. If garbage questions are asked -- politely handle it and ask for something else.
+
+
+    Hotel FAQs:
+
+    {faq_list}
+
+    Customer Question:
+
+    {user_question.question}
+    """
+
+    response = await client.aio.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config={
+            "response_mime_type" : "application/json",
+            "response_schema" : {
+                "type" : "object",
+                "properties" : {
+                    "answered":{
+                        "type": "boolean"
+                    },
+                    "message" :{
+                        "type" : "string"
+                    }
+                },
+                "required" :["answered","message"]
+            }
+        }
+    )
+
+    ai_response : dict = json.loads(response.text)
+
+    print(ai_response)
+
+    if ai_response.get("answered"):
+        return "I'm sorry, I couldn't find that information. Please contact the hotel reception for further assistance."
+    
+    return ai_response.get("message")

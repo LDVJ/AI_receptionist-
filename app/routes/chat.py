@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from ..db import get_db
-from .. import schemas, models
+from .. import schemas, models, gemini_services
 
 router = APIRouter(
     tags=["chat"],
@@ -29,4 +29,24 @@ async def first_response(slug : str, db : AsyncSession = Depends(get_db)):
         "slug" : slug,
         "welcome_msg" : welcome_msg,
         "faqs" : hotel_faqs
+    }
+
+@router.post("/{slug}", response_model=schemas.AIResponse)
+async def get_ai_response(slug : str, question : schemas.QuestionPayload, db : AsyncSession = Depends(get_db)):
+    print("==slug==", slug)
+    hotel = await db.execute(select(models.Hotel).where(models.Hotel.slug == slug))
+    hotel_data = hotel.scalar_one_or_none()
+
+    print("==hotel info==", hotel_data)
+
+    if hotel_data is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
+    
+    faqs = await db.execute(select(models.HotelFAQ).where(models.HotelFAQ.hotel_id == hotel_data.id))
+    faqs_data = faqs.scalars().all()
+
+    answer : str = await gemini_services.get_gemini_response(hotel_data.hotel_name, faq_data=faqs_data, user_question=question)
+
+    return {
+        "answer" : answer
     }

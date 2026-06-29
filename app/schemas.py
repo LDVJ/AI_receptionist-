@@ -101,6 +101,18 @@ class WelcomeResponse(BaseModel):
         "from_attributes": True
     }
 
+
+class QuestionPayload(BaseModel):
+    question : str  
+
+class AIResponse(BaseModel):
+    answer : str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 # Relationship Schemas
 
 class UnansweredQuestConversationRel(UnansweredQuestResponse):
