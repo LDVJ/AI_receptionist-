@@ -5,6 +5,9 @@ from sqlalchemy.orm import selectinload
 from ..db import get_db
 from .. import schemas, models, gemini_services
 from ..utilities import generate_id
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     tags=["chat"],
@@ -65,8 +68,9 @@ async def get_ai_response(slug : str, question : schemas.QuestionPayload, db : A
         
     try:
         await db.commit()
-    except:
+    except Exception as e:
         await db.rollback()
+        logger.error("DB Commit Failed: ",e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong!")
     
     return {
