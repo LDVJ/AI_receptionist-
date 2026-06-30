@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from ..db import get_db
 from .. import schemas, models, gemini_services
+from ..utilities import generate_id
 
 router = APIRouter(
     tags=["chat"],
@@ -33,11 +34,8 @@ async def first_response(slug : str, db : AsyncSession = Depends(get_db)):
 
 @router.post("/{slug}", response_model=schemas.AIResponse)
 async def get_ai_response(slug : str, question : schemas.QuestionPayload, db : AsyncSession = Depends(get_db)):
-    print("==slug==", slug)
     hotel = await db.execute(select(models.Hotel).where(models.Hotel.slug == slug))
     hotel_data = hotel.scalar_one_or_none()
-
-    print("==hotel info==", hotel_data)
 
     if hotel_data is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
@@ -45,8 +43,32 @@ async def get_ai_response(slug : str, question : schemas.QuestionPayload, db : A
     faqs = await db.execute(select(models.HotelFAQ).where(models.HotelFAQ.hotel_id == hotel_data.id))
     faqs_data = faqs.scalars().all()
 
-    answer : str = await gemini_services.get_gemini_response(hotel_data.hotel_name, faq_data=faqs_data, user_question=question)
+    answer : dict = await gemini_services.get_gemini_response(hotel_data.hotel_name, faq_data=faqs_data, user_question=question)
 
+    new_conversation = models.Conversations(
+        id = generate_id(),
+        hotel_id = hotel_data.id,
+        guest_question = question.question,
+        ai_response = answer["message"],
+        was_answerable = answer["answered"],
+    )
+
+    db.add(new_conversation)
+    await db.flush()
+
+    if not answer.get("answered"):
+        new_unanswered = models.UnansweredQuestions(
+            id = generate_id(),
+            conversation_id = new_conversation.id,
+        )
+        db.add(new_unanswered)
+        
+    try:
+        await db.commit()
+    except:
+        await db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong!")
+    
     return {
-        "answer" : answer
+        "answer" : answer["message"]
     }

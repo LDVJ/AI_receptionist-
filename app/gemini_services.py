@@ -8,6 +8,17 @@ client = genai.Client(
     api_key=settings.GEMINI_API_KEY
 )
 
+dummy_response_test_1 = {
+    "answered" : True,
+    "message" : "HEllo Question received"
+}
+dummy_response_test_2 = {
+    "answered" : False,
+    "message" : "answer not given"
+}
+
+max_tries = 5
+
 async def get_gemini_response(hotel_name: str, faq_data : list[models.HotelFAQ], user_question : schemas.QuestionPayload):
 
     faq_list = [
@@ -17,7 +28,7 @@ async def get_gemini_response(hotel_name: str, faq_data : list[models.HotelFAQ],
         "category": faq.category,
     }
     for faq in faq_data
-]
+    ]
 
     prompt = f"""
     You are an AI receptionist for "{hotel_name}".
@@ -44,32 +55,36 @@ async def get_gemini_response(hotel_name: str, faq_data : list[models.HotelFAQ],
 
     {user_question.question}
     """
-
-    response = await client.aio.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-        config={
-            "response_mime_type" : "application/json",
-            "response_schema" : {
-                "type" : "object",
-                "properties" : {
-                    "answered":{
-                        "type": "boolean"
+    for attempt in range(max_tries):
+        response = await client.aio.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config={
+                "response_mime_type" : "application/json",
+                "response_schema" : {
+                    "type" : "object",
+                    "properties" : {
+                        "answered":{
+                            "type": "boolean"
+                        },
+                        "message" :{
+                            "type" : "string"
+                        }
                     },
-                    "message" :{
-                        "type" : "string"
-                    }
-                },
-                "required" :["answered","message"]
+                    "required" :["answered","message"]
+                }
             }
-        }
-    )
-
-    ai_response : dict = json.loads(response.text)
-
-    print(ai_response)
-
-    if ai_response.get("answered"):
-        return "I'm sorry, I couldn't find that information. Please contact the hotel reception for further assistance."
-    
-    return ai_response.get("message")
+        )
+        try:
+            ai_response : dict = json.loads(response.text)
+            return{
+                "answered" : ai_response["answered"],
+                "message" : ai_response["message"]
+            }
+        except (KeyError, json.JSONDecodeError):
+            if attempt == max_tries -1:
+                return{
+                    "answered" : False,
+                    "message" : "I'm sorry, I couldn't find that information. Please contact the hotel reception for further assistance."
+                }
+             
