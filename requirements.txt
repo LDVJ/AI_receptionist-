@@ -10,3 +10,5 @@ passlib[bcrypt]
 google-genai
 python-multipart
 email-validator
+pwdlib[argon2]
+pwdlib[bcrypt]
