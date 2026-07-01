@@ -3,9 +3,10 @@ from sqlalchemy.orm import DeclarativeBase
 from app.config import settings
 
 
-DB_URL = f'postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}'
+# DB_URL = f'postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}'
+DB_URL = f'postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}/{settings.DB_NAME}'
 
-engine = create_async_engine(DB_URL, echo = True)
+engine = create_async_engine(DB_URL)
 
 sessionLocal = async_sessionmaker(
     autoflush=False,
