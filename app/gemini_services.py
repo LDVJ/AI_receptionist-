@@ -1,7 +1,8 @@
 from google  import genai
+from google.genai import errors as geniai_errors
 from .config import settings
 from . import schemas, models
-import json
+import json, asyncio
 
 
 client = genai.Client(
@@ -56,31 +57,44 @@ async def get_gemini_response(hotel_name: str, faq_data : list[models.HotelFAQ],
     {user_question.question}
     """
     for attempt in range(max_tries):
-        response = await client.aio.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config={
-                "response_mime_type" : "application/json",
-                "response_schema" : {
-                    "type" : "object",
-                    "properties" : {
-                        "answered":{
-                            "type": "boolean"
-                        },
-                        "message" :{
-                            "type" : "string"
-                        }
-                    },
-                    "required" :["answered","message"]
-                }
-            }
-        )
         try:
+            response = await client.aio.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+                config={
+                    "response_mime_type" : "application/json",
+                    "response_schema" : {
+                        "type" : "object",
+                        "properties" : {
+                            "answered":{
+                                "type": "boolean"
+                            },
+                            "message" :{
+                                "type" : "string"
+                            }
+                        },
+                        "required" :["answered","message"]
+                    }
+                }
+            )
             ai_response : dict = json.loads(response.text)
             return{
                 "answered" : ai_response["answered"],
                 "message" : ai_response["message"]
             }
+        except geniai_errors.ServerError:
+            if attempt == max_tries -1:
+                return {
+                    "answered" : False,
+                    "message" : "I'm sorry, our AI service is temporarily unavailable. Please try again in a moment."
+                }
+            await asyncio.sleep(2 ** attempt)
+        except geniai_errors.ClientError:
+            return{
+                "answered" : False,
+                "message" : "I'm sorry, I'm unable to process your request right now. Please try again later."
+            }
+
         except (KeyError, json.JSONDecodeError):
             if attempt == max_tries -1:
                 return{
