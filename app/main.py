@@ -11,7 +11,7 @@ app =  FastAPI()
 
 @app.get("/")
 async def root(db : AsyncSession = Depends(get_db)):
-    smt = await db.execute(select(models.Hotel))
+    smt = await db.execute(select(models.Users))
     hotel_lsit =  smt.scalars().all()
 
     return hotel_lsit
@@ -20,7 +20,7 @@ async def root(db : AsyncSession = Depends(get_db)):
 app.add_middleware(
     CORSMiddleware,
     allow_origins = ["http://127.0.0.1:5500",
-                     "https://ai-receptionist-frontend-f3eg.onrender.com/"],
+                     "https://ai-receptionist-frontend-f3eg.onrender.com"],
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"]

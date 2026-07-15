@@ -61,6 +61,7 @@ class UnansweredQuestions(Base):
     conversation_id : Mapped[str] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
     status : Mapped[FAQStatus] = mapped_column(SQLEnum(FAQStatus, name = "faq_status"), nullable=False, default=FAQStatus.PENDING)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, server_onupdate=func.now())
 
     # realtionship
     conversation : Mapped["Conversations"] = relationship(back_populates="unanswered_entry")

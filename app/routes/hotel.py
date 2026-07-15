@@ -72,4 +72,22 @@ async def get_hotel_info(user_info : models.Users = Depends(oauth2.get_user_with
     return hotel_info
 
 
+@router.patch("/{slug}")
+async def update_slug(slug : str, payload: str, db : AsyncSession = Depends(get_db), user_info : models.Users = Depends(oauth2.get_user_with_token)):
+    hotel_slug = user_info.hotel.slug
 
+    hotel = await db.execute(select(models.Hotel).where(models.Hotel.slug == slug))
+    hotel_result = hotel.scalar_one_or_none()
+
+    if hotel_result is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorised Action")
+
+    if hotel_slug != slug:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorised Action")
+    
+    setattr(hotel_result, "welcome_msg", payload)
+
+    await db.commit()
+    await db.refresh(hotel_result)
+
+    return hotel_result
