@@ -1,4 +1,4 @@
-from google  import genai
+from google import genai
 from google.genai import errors as geniai_errors
 from .config import settings
 from . import schemas, models

@@ -35,6 +35,7 @@ class HotelFAQ(Base):
     answer : Mapped[str] = mapped_column(Text, nullable=False)
     category : Mapped[str] = mapped_column(String(100), nullable=True)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), onupdate=func.now())
 
     # relationship 
     hotel : Mapped["Hotel"] =  relationship(back_populates="faqs")
@@ -58,10 +59,10 @@ class UnansweredQuestions(Base):
     __tablename__ = "unanswered_questions"
 
     id: Mapped[str] = mapped_column(primary_key=True, nullable=False)
-    conversation_id : Mapped[str] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
+    conversation_id : Mapped[str] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, unique=True)
     status : Mapped[FAQStatus] = mapped_column(SQLEnum(FAQStatus, name = "faq_status"), nullable=False, default=FAQStatus.PENDING)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, server_onupdate=func.now())
+    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, onupdate=func.now())
 
     # realtionship
     conversation : Mapped["Conversations"] = relationship(back_populates="unanswered_entry")

@@ -69,7 +69,7 @@ class ConversationCreate(BaseModel):
     was_answerable : bool | None = True
 
 class ConversationResponse(ConversationCreate):
-    id : int
+    id : str
     created_at : datetime
 
     
@@ -84,11 +84,16 @@ class UnansweredQuestCreate(BaseModel):
 class UnansweredQuestResponse(UnansweredQuestCreate):
     id : str
     created_at : datetime
+    conversation : ConversationResponse
 
     
     model_config = {
         "from_attributes":True
     }
+
+class StatusUpdate(BaseModel):
+    status : FAQStatus
+
 
 # chat responses
 
@@ -122,7 +127,7 @@ class ConversationUnansweredRel(ConversationResponse):
     unanswered_entry : UnansweredQuestResponse
 
 class ConversationHotelRel(ConversationResponse):
-    hotel : HotelResponse
+    hotel : HotelResponse 
 
 class UserHotelRel(UserResponse):
     hotel : HotelResponse

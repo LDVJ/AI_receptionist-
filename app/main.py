@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .db import get_db
 from sqlalchemy import select
 from . import models
-from .routes import login, hotel, user, faqs,chat
+from .routes import login, hotel, user, faqs,chat, unanswered
 
 app =  FastAPI()
 
@@ -32,3 +32,4 @@ app.include_router(login.router)
 app.include_router(hotel.router)
 app.include_router(faqs.router)
 app.include_router(chat.router)
+app.include_router(unanswered.router)
